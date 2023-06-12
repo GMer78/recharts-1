@@ -64,7 +64,6 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
     itemSorter,
     wrapperClassName,
     labelClassName,
-    label,
     labelFormatter,
     tooltipDatakey,
   } = props;
@@ -96,41 +95,6 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
             }
 
             // Build list from payload values
-<<<<<<< HEAD
-            const items = (itemSorter ? _.sortBy(payloadPayload, itemSorter) : payloadPayload).map((entry, i) => {
-              if (entry.type === 'none') {
-                return null;
-              }
-
-              const finalItemStyle = {
-                display: 'block',
-                paddingTop: 4,
-                paddingBottom: 4,
-                color: entry.color || '#000',
-                ...itemStyle,
-              };
-              const finalFormatter = entry.formatter || formatter || defaultFormatter;
-              let finalValue: React.ReactNode = value;
-              let finalName: React.ReactNode = name;
-              if (finalFormatter && value != null && name != null) {
-                const formatted = finalFormatter(value, name, entry, i, payload);
-                if (Array.isArray(formatted)) {
-                  [finalValue, finalName] = formatted;
-                } else {
-                  finalValue = formatted;
-                }
-              }
-              return (
-                // eslint-disable-next-line react/no-array-index-key
-                <li className="recharts-tooltip-item" key={`tooltip-item-${i}`} style={finalItemStyle}>
-                  {isNumOrStr(finalName) ? <span className="recharts-tooltip-item-name">{finalName}</span> : null}
-                  {isNumOrStr(finalName) ? <span className="recharts-tooltip-item-separator">{separator}</span> : null}
-                  <span className="recharts-tooltip-item-value">{finalValue}</span>
-                  <span className="recharts-tooltip-item-unit">{entry.unit || ''}</span>
-                </li>
-              );
-            });
-=======
             const items = (itemSorter ? _.sortBy(payloadPayload, itemSorter) : payloadPayload).map(
               (entry: any, i: number) => {
                 if (entry.type === 'none') {
@@ -145,31 +109,29 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
                   ...itemStyle,
                 };
                 const finalFormatter = entry.formatter || formatter || defaultFormatter;
-                let { value, name } = entry;
-                if (finalFormatter && value != null && name != null) {
-                  const formatted = finalFormatter(value, name, entry, i, payload);
+                let finalValue: React.ReactNode = entry.value;
+                let finalName: React.ReactNode = entry.name;
+                if (finalFormatter && finalValue != null && finalName != null) {
+                  const formatted = finalFormatter(finalValue, finalName, entry, i, payload);
                   if (Array.isArray(formatted)) {
-                    [value, name] = formatted as [TValue, TName];
+                    [finalValue, finalName] = formatted;
                   } else {
-                    value = formatted;
+                    finalValue = formatted;
                   }
                 }
                 return (
                   // eslint-disable-next-line react/no-array-index-key
-                  <li
-                    className="recharts-tooltip-item"
-                    key={`tooltip-item-${payloadLabel}-${i}`}
-                    style={finalItemStyle}
-                  >
-                    {isNumOrStr(name) ? <span className="recharts-tooltip-item-name">{name}</span> : null}
-                    {isNumOrStr(name) ? <span className="recharts-tooltip-item-separator">{separator}</span> : null}
-                    <span className="recharts-tooltip-item-value">{value}</span>
+                  <li className="recharts-tooltip-item" key={`tooltip-item-${i}`} style={finalItemStyle}>
+                    {isNumOrStr(finalName) ? <span className="recharts-tooltip-item-name">{finalName}</span> : null}
+                    {isNumOrStr(finalName) ? (
+                      <span className="recharts-tooltip-item-separator">{separator}</span>
+                    ) : null}
+                    <span className="recharts-tooltip-item-value">{finalValue}</span>
                     <span className="recharts-tooltip-item-unit">{entry.unit || ''}</span>
                   </li>
                 );
               },
             );
->>>>>>> 1a3d2e0a (Fixed bits tsc wasn't happy about)
 
             return (
               <>
@@ -202,11 +164,10 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
     ...contentStyle,
   };
 
+  const wrapperCN = classNames('recharts-default-tooltip', wrapperClassName);
+
   return (
     <div className={wrapperCN} style={finalStyle}>
-      <p className={labelCN} style={finalLabelStyle}>
-        {React.isValidElement(finalLabel) ? finalLabel : `${finalLabel}`}
-      </p>
       {renderContent()}
     </div>
   );
