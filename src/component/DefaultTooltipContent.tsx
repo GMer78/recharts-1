@@ -84,9 +84,12 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
         },
 
         labelGroupedPayload => {
-          return _.map(labelGroupedPayload, (payloadPayload, payloadLabel) => {
-            // Build label from datakey value
-            const hasLabel = !_.isNil(payloadLabel);
+          return _.map(labelGroupedPayload, (payloadPayload: Payload<TValue, TName>[], payloadLabel: any) => {
+            // Lodash has grouped payload by datakey value
+            // Undefined values will be given a key as a string 'undefined'
+            // null values should be given a key as a string 'null'
+            const hasLabel = !(payloadLabel === 'undefined' || payloadLabel === 'null');
+
             let finalLabel: ReactNode = hasLabel ? payloadLabel : '';
             const labelCN = classNames('recharts-tooltip-label', labelClassName);
 
@@ -96,7 +99,7 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
 
             // Build list from payload values
             const items = (itemSorter ? _.sortBy(payloadPayload, itemSorter) : payloadPayload).map(
-              (entry: any, i: number) => {
+              (entry: Payload<TValue, TName>, i: number) => {
                 if (entry.type === 'none') {
                   return null;
                 }
@@ -121,7 +124,11 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
                 }
                 return (
                   // eslint-disable-next-line react/no-array-index-key
-                  <li className="recharts-tooltip-item" key={`tooltip-item-${i}`} style={finalItemStyle}>
+                  <li
+                    className="recharts-tooltip-item"
+                    key={`tooltip-item-${payloadLabel}-${i}`}
+                    style={finalItemStyle}
+                  >
                     {isNumOrStr(finalName) ? <span className="recharts-tooltip-item-name">{finalName}</span> : null}
                     {isNumOrStr(finalName) ? (
                       <span className="recharts-tooltip-item-separator">{separator}</span>

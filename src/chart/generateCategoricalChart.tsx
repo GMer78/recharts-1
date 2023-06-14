@@ -218,7 +218,7 @@ const getTooltipContent = (
   activeLabel?: string,
 ): any[] => {
   const { graphicalItems, tooltipAxis } = state;
-  const { dataKey } = tooltipAxis;
+  const { dataKey, allowSelectNearestValue, categoricalDomain, allowDuplicatedCategory } = tooltipAxis;
   const displayedData = getDisplayedData(chartData, state);
 
   if (activeIndex < 0 || !graphicalItems || !graphicalItems.length || activeIndex >= displayedData.length) {
@@ -235,22 +235,30 @@ const getTooltipContent = (
     const { data } = child.props;
     let payload;
 
-    if (tooltipAxis.dataKey && !tooltipAxis.allowDuplicatedCategory) {
+    if (dataKey && !allowDuplicatedCategory) {
       // graphic child has data props
       const entries = data === undefined ? displayedData : data;
       payload = findEntryInArray(entries, tooltipAxis.dataKey, activeLabel);
-    } else if (tooltipAxis.dataKey && tooltipAxis.allowSelectNearestValue && tooltipAxis?.categoricalDomain) {
+    } else if (dataKey && allowSelectNearestValue && categoricalDomain) {
       const entries = data === undefined ? displayedData : data;
-      const value = tooltipAxis?.categoricalDomain?.[activeIndex];
-
+      const value = categoricalDomain?.[activeIndex];
       const matchingData: any = entries.reduce((acc: any, entry: any) =>
         Math.abs(value - entry[dataKey as string]) < Math.abs(value - acc[dataKey as string]) ? entry : acc,
       );
       payload = matchingData;
-    } else if (tooltipAxis.dataKey && tooltipAxis?.categoricalDomain) {
+    } else if (dataKey && categoricalDomain) {
       const entries = data === undefined ? displayedData : data;
+      console.log('2');
+      console.log(categoricalDomain);
+      console.log(entries);
+      console.log(child);
+      // console.log(state);
 
-      const value = tooltipAxis?.categoricalDomain?.[activeIndex];
+      console.log(data);
+
+      console.log(displayedData);
+
+      const value = categoricalDomain?.[activeIndex];
       const matchingData: any = entries.find((entry: any) => entry[dataKey as string] === value);
 
       payload = matchingData;
