@@ -5,6 +5,8 @@ import _ from 'lodash';
 import React, { CSSProperties, ReactNode } from 'react';
 import classNames from 'classnames';
 import { isNumOrStr } from '../util/DataUtils';
+import { getValueByDataKey } from '../util/ChartUtils';
+import { DataKey } from '../util/types';
 
 function defaultFormatter<TValue extends ValueType>(value: TValue) {
   return _.isArray(value) && isNumOrStr(value[0]) && isNumOrStr(value[1]) ? (value.join(' ~ ') as TValue) : value;
@@ -46,7 +48,7 @@ export interface Props<TValue extends ValueType, TName extends NameType> {
   labelStyle?: CSSProperties;
   labelFormatter?: (label: any, payload: Array<Payload<TValue, TName>>) => ReactNode;
   label?: any;
-  tooltipDatakey?: any;
+  tooltipDataKey?: DataKey<any>;
   payload?: Array<Payload<TValue, TName>>;
   itemSorter?: (item: Payload<TValue, TName>) => number | string;
 }
@@ -65,7 +67,7 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
     wrapperClassName,
     labelClassName,
     labelFormatter,
-    tooltipDatakey,
+    tooltipDataKey,
   } = props;
 
   const finalLabelStyle = {
@@ -80,7 +82,7 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
       const run = _.flow([
         // Group payload by datakey value
         payloadElement => {
-          return _.groupBy(payloadElement, el => el?.payload[tooltipDatakey]);
+          return _.groupBy(payloadElement, el => getValueByDataKey(el?.payload, tooltipDataKey));
         },
 
         labelGroupedPayload => {
@@ -93,13 +95,13 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
             let finalLabel: ReactNode = hasLabel ? payloadLabel : '';
             const labelCN = classNames('recharts-tooltip-label', labelClassName);
 
-            if (hasLabel && labelFormatter && payload !== undefined && payloadPayload !== null) {
+            if (hasLabel && labelFormatter && payloadPayload !== null) {
               finalLabel = labelFormatter(payloadLabel, payloadPayload);
             }
 
             // Build list from payload values
             const items = (itemSorter ? _.sortBy(payloadPayload, itemSorter) : payloadPayload).map(
-              (entry: Payload<TValue, TName>, i: number) => {
+              (entry: any, i: number) => {
                 if (entry.type === 'none') {
                   return null;
                 }
@@ -119,7 +121,7 @@ export const DefaultTooltipContent = <TValue extends ValueType, TName extends Na
                   if (Array.isArray(formatted)) {
                     [finalValue, finalName] = formatted;
                   } else {
-                    finalValue = formatted;
+                    finalValue = formatted as TValue;
                   }
                 }
                 return (

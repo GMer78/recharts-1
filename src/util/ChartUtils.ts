@@ -17,7 +17,7 @@ import { findEntryInArray, getPercentValue, isNumber, isNumOrStr, mathSign, uniq
 import { filterProps, findAllByType, findChildByType, getDisplayName } from './ReactUtils';
 // TODO: Cause of circular dependency. Needs refactor.
 // import { RadiusAxisProps, AngleAxisProps } from '../polar/types';
-import { AxisType, BaseAxisProps, DataKey, LayoutType, PolarLayoutType, TickItem } from './types';
+import { AxisType, BaseAxisProps, DataKey, LayoutType, PolarLayoutType, TickItem, AxisPropType } from './types';
 
 export function getValueByDataKey<T>(obj: T, dataKey: DataKey<any>, defaultValue?: any) {
   if (_.isNil(obj) || _.isNil(dataKey)) {
@@ -1204,4 +1204,22 @@ export const getTooltipItem = (graphicalItem: any, payload: any) => {
     payload,
     chartType,
   };
+};
+
+export const getCursorBehaviour = (
+  dataKey: DataKey<any>,
+  allowDuplicatedCategory: boolean,
+  selectNearestValue: boolean,
+  type: AxisPropType,
+) => {
+  if (dataKey && !allowDuplicatedCategory) {
+    return 'no duplicated categories';
+  }
+  if (dataKey && selectNearestValue && type === 'number') {
+    return 'select nearest value';
+  }
+  if (dataKey && type === 'number') {
+    return 'value-based selection';
+  }
+  return 'index-based selection';
 };

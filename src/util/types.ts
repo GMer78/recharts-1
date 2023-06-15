@@ -1055,10 +1055,12 @@ export type AxisDomain =
   | [AxisDomainItem, AxisDomainItem]
   | (([dataMin, dataMax]: [number, number], allowDataOverflow: boolean) => [number, number]);
 
+export type AxisPropType = 'number' | 'category';
+
 /** The props definition of base axis */
 export interface BaseAxisProps {
   /** The type of axis */
-  type?: 'number' | 'category';
+  type?: AxisPropType;
   /** The key of data displayed in the axis */
   dataKey?: DataKey<any>;
   /** Whether or not display the axis */
@@ -1114,7 +1116,7 @@ export interface BaseAxisProps {
    * When the cursor selects a value on the axis which is not present on another dataset,
    * allow the nearest value to be selected instead.
    */
-  allowSelectNearestValue?: boolean;
+  selectNearestValue?: boolean;
 
   categoricalDomain?: any;
 }
